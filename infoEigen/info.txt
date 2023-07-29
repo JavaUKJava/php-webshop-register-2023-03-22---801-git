@@ -16,7 +16,7 @@ Save the user
     https://odinuv.cz/walkthrough/backend-insert/advanced/
         see the end of the page (last inserted id ...)
 
------------------
+-------------######----
 
 Get a array of product data by: only active (boolean), only keyword (searchData string) ...
 methode (old version)
@@ -28,8 +28,5 @@ methode (old version)
 methode (new version)
     getProductDatas(active: boolean, searchData: string, searchField: string): array of getProductData
 
-
-
-
-
+++++++++++++++++++++++++++++++++
 
