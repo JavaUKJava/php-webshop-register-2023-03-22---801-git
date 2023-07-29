@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"name": "workspace-visual-studio-2023-03-17",
+			"path": ".."
+		}
+	],
+	"settings": {
+		"editor.mouseWheelZoom": true
+	}
+}

@@ -1,0 +1,31 @@
+.countCartEntrysText {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    color: black;
+    text-align: left;
+    display: inline-block;
+}
+
+.countCartEntrysValue {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 24px;
+    color: blue;
+    text-align: left;
+    display: inline-block;
+}
+
+.priceAllCartEntrysText {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    color: black;
+    text-align: right;
+    display: inline-block;
+}
+
+.priceAllCartEntrysValue {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 24px;
+    color: blue;
+    text-align: right;
+    display: inline-block;
+}

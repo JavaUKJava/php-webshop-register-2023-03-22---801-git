@@ -1,0 +1,354 @@
+# --- php-webshop-register-2023-03-22---502.sql ---
+# --- order of tables and the foreign key of the tables
+# permissions
+# roles
+# permissions_to_roles (role_id, permission_id)
+# countries
+# salutations
+# addresses (salutation_id, country_id)
+# invoices
+# products
+# order_entrys (product_id)
+# order_status
+# delivery_options
+# payment_options
+# orders (invoice_id, invoice_address_id, delivery_address_id, status_id)
+# orders_to_order_entrys (order_id, order_entry_id)
+# users (salutation_id, order_in_progress_id)
+# users_to_orders (user_id, order_id)
+# users_to_roles (user_id, role_id)
+# cart_entrys (user_id, product_id)
+
+# only for cloud
+# drop database if exists webroot_webshop;
+# create database if not exists webroot_webshop;
+# use webroot_webshop;
+
+drop database if exists php_webshop_register_2023_03_22;
+create database if not exists php_webshop_register_2023_03_22;
+use php_webshop_register_2023_03_22;
+
+# ----- create all tables -----
+# ----- table for permissions
+CREATE TABLE permissions (
+	id int auto_increment primary key not null,
+	name VARCHAR(50) unique not null               
+);
+# drop table permissions;
+# select * from permissions;
+
+# ----- table for roles
+CREATE TABLE roles (
+	id int auto_increment primary key not null,
+	name VARCHAR(50) unique not null               
+);
+# drop table roles;
+# select * from roles;
+
+# ----- table for permissions to roles
+CREATE TABLE permissions_to_roles (
+	id int auto_increment primary key not null,
+	role_id int not null,
+	permission_id int not null,
+    foreign key (role_id) references roles (id) on update no action on delete no action,
+    foreign key (permission_id) references permissions (id) on update no action on delete no action
+);
+# drop table permissions_to_roles;
+# select * from permissions_to_roles;
+
+# ----- table for countries
+create table countries (
+	id int auto_increment primary key not null,
+    name VARCHAR(100) NOT NULL
+);
+# drop table countries;
+# select * from countries;
+
+# ----- table for all salutations
+CREATE TABLE salutations (
+	id int auto_increment primary key not null,
+	name VARCHAR(50) NOT NULL,
+	description VARCHAR(150)
+);
+# drop table salutations;
+# select * from salutations;
+
+# ----- table for all addresses
+create table addresses (
+	id int auto_increment primary key not null,
+	salutation_id int not null,
+    title_before_name varchar(50),
+    first_name varchar(50) not null,
+    last_name varchar(50) not null,
+    title_after_name varchar(50),
+    phone_number varchar(50),
+    email varchar(150) not null,
+    country_id int not null,
+    postal_code varchar(20) not null,
+    location varchar(100) not null,
+    address_line_1 varchar(100) not null,
+    address_line_2 varchar(100) not null,
+    vatId varchar(100),				# Umsatzsteuernummer
+    foreign key (salutation_id) references salutations (id) on update no action on delete no action,
+    foreign key (country_id) references countries (id) on update no action on delete no action
+);
+# drop table addresses;
+select * from addresses;
+
+# ----- table for invoices
+create table invoices (
+	id int auto_increment primary key not null,
+    number varchar(50) not null,
+    date int not null,
+    status_id int not null
+);
+# drop table invoices;
+# select * from invoices;
+
+# ----- table for invoice status
+create table invoice_status (
+	id int auto_increment primary key not null,
+    name varchar(50) not null,
+    description varchar(150) not null
+);
+# drop table invoice_status;
+# select * from invoice_status;
+
+# --- table for products
+CREATE TABLE products (
+	id int auto_increment primary key not null,
+    identifier varchar(50) unique not null,
+    name VARCHAR(50) not null,
+    description varchar(200) not null,
+    keywords varchar(200),
+    stock_count int not null,
+    retail_price DOUBLE not null,
+    active boolean not null,
+	image_1 varchar(255),
+    image_2 varchar(255),
+    image_3 varchar(255)
+);
+# drop table products;
+# select * from products;
+
+# ----- table for order entrys
+create table order_entrys (
+	id int auto_increment primary key not null,
+	product_id int not null,
+    purchase_price double not null,
+    product_count int not null,
+    foreign key (product_id) references products (id) on update no action on delete no action
+);
+# drop table order_entrys;
+# select * from order_entrys;
+
+# ----- table for order status
+create table order_status (
+	id int auto_increment primary key not null,
+    name varchar(50) not null,
+    description varchar(150) not null
+);
+# drop table order_status;
+# select * from order_status;
+
+# ----- table for delivery options
+create table delivery_options (
+	id int auto_increment primary key not null,
+    name varchar(50) not null,
+    description varchar(150) not null
+);
+# drop table delivery_options;
+# select * from delivery_options;
+
+# ----- table for payment options
+create table payment_options (
+	id int auto_increment primary key not null,
+    name varchar(50) not null,
+    description varchar(150) not null
+);
+# drop table payment_options;
+# select * from payment_options;
+
+# ----- table for orders
+create table orders (
+	id int auto_increment primary key not null,
+    invoice_id int,					# Rechnung Nummer
+    invoice_address_id int,			# Rechnung-Adresse
+    delivery_address_id int,		# Liefer-Adresse
+	date int,
+    status_id int not null,
+    delivery_option_id int,
+    payment_option_id int,
+	foreign key (invoice_id) references invoices (id) on update no action on delete no action,
+    foreign key (invoice_address_id) references addresses (id) on update no action on delete no action,
+    foreign key (delivery_address_id) references addresses (id) on update no action on delete no action,
+    foreign key (status_id) references order_status (id) on update no action on delete no action,
+    foreign key (delivery_option_id) references delivery_options (id) on update no action on delete no action,
+    foreign key (payment_option_id) references payment_options (id) on update no action on delete no action
+);
+# drop table orders;
+select * from orders;
+
+# ----- table for orders to order entrys
+create table orders_to_order_entrys (
+	id int auto_increment primary key not null,
+    order_id int not null,
+    order_entry_id int not null,
+    foreign key (order_id) references orders (id) on update no action on delete no action,
+    foreign key (order_entry_id) references order_entrys (id) on update no action on delete no action
+);
+# drop table orders_to_order_entrys;
+select * from orders_to_order_entrys;
+
+# ----- table for all users (and administrator)
+create table users (
+	id int auto_increment primary key not null,
+    login_name varchar(30) unique not null,
+    salutation_id int not null,
+    title_before_name varchar(50),
+    first_name varchar(50) not null,
+    last_name varchar(50) not null,
+    title_after_name varchar(50),
+    phone_number varchar(50),
+    email varchar(150) not null,
+	order_in_progress_id int,		# aktuell bearbeitete Order
+    password varchar(255) not null,
+    registration_time int not null,
+    last_login_time int not null,
+    active boolean not null,
+    foreign key (salutation_id) references salutations (id) on update no action on delete no action,
+    foreign key (order_in_progress_id) references orders (id) on update no action on delete no action
+);
+# drop table users;
+# update users set login_name='2', email='mail@gmx.at', password='44444pwd', registration_time=1679561415, last_login_time=1679561415 where user_id=1;
+# delete from users where id=4;
+select * from users;
+
+# ----- table for users to orders
+create table users_to_orders (
+	id int auto_increment primary key not null,
+    user_id int not null,
+    order_id int not null,
+    foreign key (user_id) references users (id) on update no action on delete no action,
+    foreign key (order_id) references orders (id) on update no action on delete no action
+);
+# drop table users_to_orders;
+select * from users_to_orders;
+
+# ----- table for users to roles
+CREATE TABLE users_to_roles (
+	id int auto_increment primary key not null,
+	user_id int not null,
+	role_id int not null,
+	foreign key (user_id) references users (id) on update cascade on delete cascade,
+    foreign key (role_id) references roles (id) on update cascade on delete cascade
+);
+# drop table users_to_roles;
+# select * from users_to_roles;
+
+# --- table for cart entrys
+create table cart_entrys (
+	id int auto_increment primary key not null,
+    user_id int not null,
+    product_id int not null,
+    product_count int not null,
+    foreign key (user_id) references users (id) on update no action on delete no action,
+    foreign key (product_id) references products (id) on update no action on delete no action
+);
+# drop table cart_entrys;
+# select * from cart_entrys;
+
+# ----- create test data in the tables -----
+insert into order_status (name, description) values ('CREATE_BEGIN', 'Start to create the order.');
+insert into order_status (name, description) values ('CREATE_AFTER_REGISTER_INVOICE_ADDRESS', 'After to register and insert the invoice address to the order.');
+insert into order_status (name, description) values ('CREATE_AFTER_REGISTER_DELIVERY_SETTINGS', 'After to register and insert the delivery settings to the order.');
+insert into order_status (name, description) values ('CREATE_AFTER_REGISTER_DELIVERY_ADDRESS', 'After to register and insert the delivery address to the order.');
+insert into order_status (name, description) values ('CREATE_AFTER_REGISTER_PAYMENT_SETTINGS', 'After to register and insert the payment settings to the order.');
+insert into order_status (name, description) values ('CREATE_END', 'End of create the order.');
+
+insert into delivery_options (name, description) values ('Lieferung an Rechnungsadresse', 'Lieferadresse entspricht der Rechnungsadresse');
+insert into delivery_options (name, description) values ('Abweichende Lieferadresse', 'Lieferadresse entspricht einer abweichenden Rechnungsadresse');
+
+insert into payment_options(name, description) values ('Rechnung', 'Bezahlung nach erhalt der Rechnung');
+insert into payment_options(name, description) values ('Kreditkarte', 'Bezahlung mittels Kreditkarte');
+insert into payment_options(name, description) values ('Vorauszahlung per Überweisung', 'Vorauszahlung per Überweisung, erst danach Warenversandt');
+
+INSERT INTO products(identifier, name, description, keywords, stock_count, retail_price, active, image_1, image_2, image_3) VALUES ('1xyz', 'Apfel rot', 'Beste Apfelsorte ...', 'Apfel, rot', 20, 0.5, true, 'apfel-rot-01.jpg', 'apfel-rot-hand-01.jpg', 'apfel-rot-viele-01.jpg');
+INSERT INTO products(identifier, name, description, keywords, stock_count, retail_price, active, image_1, image_2, image_3) VALUES ('2xyz', 'Apfel gelb', 'Der Früheste ...', 'Apfel, gelb', 12, 0.8, true, 'apfel-gelb-01.jpg', 'apfel-gelb-3-stk-01.jpg', 'apfel-gelb-viele-01.jpg');
+INSERT INTO products(identifier, name, description, keywords, stock_count, retail_price, active, image_1, image_2, image_3) VALUES ('3xyz', 'Apfel grün', 'Die späte Sorte ...', 'Apfel, grün', 35, 1.2, true, 'apfel-gruen-01.jpg', 'apfel-gruen-baum-01.jpg', 'apfel-gruen-viele-01.jpg');
+
+insert into salutations (name, description) values ('---', 'leerer Eintrag');
+insert into salutations (name, description) values ('Herr', 'männlich');
+insert into salutations (name, description) values ('Frau', 'weiblich');
+
+insert into countries (name) values ('---');
+insert into countries (name) values ('Austria');
+insert into countries (name) values ('Deutschland');
+insert into countries (name) values ('Schweiz');
+
+insert into addresses (salutation_id, title_before_name, first_name, last_name, title_after_name, phone_number, email, country_id, postal_code, location, address_line_1, address_line_2, vatId) 
+				values (1, '', 'Administrator', 'Administrator', '', '', 'admin123456@admin.com', 2, '8010', 'Graz', 'Hauptplatz 37', 'Stiege1, 2. Stock Tür 3B', 'ATU12345678');
+insert into addresses (salutation_id, title_before_name, first_name, last_name, title_after_name, phone_number, email, country_id, postal_code, location, address_line_1, address_line_2, vatId) 
+				values (2, 'Mag.', 'Max', 'Mustermann', 'Ing.', '0043/664/1234567', 'max-mustermann@gmx.at', 3, '80686', 'München, Laim', 'Fürstenrieder Str. 152', '', 'DEU1246464646478');
+insert into addresses (salutation_id, title_before_name, first_name, last_name, title_after_name, phone_number, email, country_id, postal_code, location, address_line_1, address_line_2, vatId) 
+				values (3, '', 'Susi', 'Sorglos', '', '0043/664/7654321', 'susi-sorglos@gmx.at', 4, 'CH-8058', 'Zürich-Flughafen', 'Postfach', '', 'CHE 101.921.104');
+
+insert into users (login_name, salutation_id, title_before_name, first_name, last_name, title_after_name, 
+							phone_number, email, password, registration_time, last_login_time, active) 
+		values ('Admin', 1, '', 'Administrator', 'Administrator', '',
+							'', 'admin123456@admin.com', '$2y$10$TGNmu/z1AL.W6vi51zogTeCYt7k.IWmZzt0BfTF09eZNcLOKtoYsK', 1679646414, 1679646414, true);
+insert into users (login_name, salutation_id, title_before_name, first_name, last_name, title_after_name, 
+							phone_number, email, password, registration_time, last_login_time, active) 
+		values ('Prefered User', 2, 'Mag.', 'Max', 'Mustermann', 'Ing.',
+							'0043/664/1234567', 'max-mustermann@gmx.at', '$2y$10$TGNmu/z1AL.W6vi51zogTeCYt7k.IWmZzt0BfTF09eZNcLOKtoYsK', 1679646414, 1679646414, true);
+
+insert into users (login_name, salutation_id, title_before_name, first_name, last_name, title_after_name, 
+							phone_number, email, password, registration_time, last_login_time, active) 
+		values ('Standard User', 3, '', 'Susi', 'Sorglos', '',
+							'0043/664/7654321', 'susi-sorglos@gmx.at', '$2y$10$TGNmu/z1AL.W6vi51zogTeCYt7k.IWmZzt0BfTF09eZNcLOKtoYsK', 1679646414, 1679646414, true);
+
+INSERT INTO permissions(name) VALUES ('USER_SHOW');			#  1
+INSERT INTO permissions(name) VALUES ('USER_CREATE');		#  2
+INSERT INTO permissions(name) VALUES ('USER_EDIT_OWN'); 	#  3
+INSERT INTO permissions(name) VALUES ('USER_EDIT');			#  4
+INSERT INTO permissions(name) VALUES ('USER_DELETE');		#  5
+INSERT INTO permissions(name) VALUES ('PRODUCT_SHOW');		#  6
+INSERT INTO permissions(name) VALUES ('PRODUCT_CREATE');	#  7
+INSERT INTO permissions(name) VALUES ('PRODUCT_EDIT');		#  8
+INSERT INTO permissions(name) VALUES ('PRODUCT_DELETE');	#  9
+INSERT INTO permissions(name) VALUES ('PRODUCT_BUY');		#  10
+INSERT INTO permissions(name) VALUES ('ORDER_SHOW');		#  11
+
+INSERT INTO roles(name) VALUES ('ADMIN');
+INSERT INTO roles(name) VALUES ('PREFERED_USER');
+INSERT INTO roles(name) VALUES ('STANDARD_USER');
+INSERT INTO roles(name) VALUES ('NOT_REGISTERED_USER');
+
+# - admin
+INSERT INTO permissions_to_roles (role_id, permission_id) VALUES (1, 1);
+INSERT INTO permissions_to_roles (role_id, permission_id) VALUES (1, 2);
+INSERT INTO permissions_to_roles (role_id, permission_id) VALUES (1, 4);
+INSERT INTO permissions_to_roles (role_id, permission_id) VALUES (1, 5);
+INSERT INTO permissions_to_roles (role_id, permission_id) VALUES (1, 6);
+INSERT INTO permissions_to_roles (role_id, permission_id) VALUES (1, 7);
+INSERT INTO permissions_to_roles (role_id, permission_id) VALUES (1, 8);
+INSERT INTO permissions_to_roles (role_id, permission_id) VALUES (1, 9);
+INSERT INTO permissions_to_roles (role_id, permission_id) VALUES (1, 10);
+INSERT INTO permissions_to_roles (role_id, permission_id) VALUES (1, 11);
+# - prefered user
+INSERT INTO permissions_to_roles (role_id, permission_id) VALUES (2, 3);
+INSERT INTO permissions_to_roles (role_id, permission_id) VALUES (2, 6);
+INSERT INTO permissions_to_roles (role_id, permission_id) VALUES (2, 10);
+# - standard user
+INSERT INTO permissions_to_roles (role_id, permission_id) VALUES (3, 6);
+INSERT INTO permissions_to_roles (role_id, permission_id) VALUES (3, 10);
+# - not registered user
+INSERT INTO permissions_to_roles (role_id, permission_id) VALUES (4, 6);
+INSERT INTO permissions_to_roles (role_id, permission_id) VALUES (4, 10);
+
+INSERT INTO users_to_roles (user_id,role_id) VALUES (1, 1);		# Admin
+INSERT INTO users_to_roles (user_id,role_id) VALUES (2, 2);		# Prefered User
+INSERT INTO users_to_roles (user_id,role_id) VALUES (3, 3);		# Standard User
+
+insert into cart_entrys (user_id, product_id, product_count) values (3, 1, 5);
+insert into cart_entrys (user_id, product_id, product_count) values (3, 2, 10);

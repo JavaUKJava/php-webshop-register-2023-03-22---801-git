@@ -1,0 +1,35 @@
+User with array of adresses (one primary address)
+
+Simply address
+    only for send the order to this address
+
+A table for all addresses
+
+Save the user
+    check his actual addresses with the last saved user
+    create new addresses or delete old addresses in the database
+
+    check for roles and permissions and do the same work as addresses
+
+    work with transaction
+    https://www.php.net/manual/de/pdo.transactions.php
+    https://odinuv.cz/walkthrough/backend-insert/advanced/
+        see the end of the page (last inserted id ...)
+
+-----------------
+
+Get a array of product data by: only active (boolean), only keyword (searchData string) ...
+methode (old version)
+    getProductDatas
+    getProductDatasByKeyword
+    getActiveProductDatas
+    getActiveProductDatasByKeyword
+
+methode (new version)
+    getProductDatas(active: boolean, searchData: string, searchField: string): array of getProductData
+
+
+
+
+
+
